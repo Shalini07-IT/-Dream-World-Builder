@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dream World Builder</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Animated Background -->
+  <canvas id="starfield"></canvas>
+  <div class="gradient-bg"></div>
+  <div class="particles-container" id="particles"></div>
+
+  <!-- Top Toolbar -->
+  <header class="toolbar glass">
+    <div class="toolbar-brand">
+      <span class="brand-icon">✦</span>
+      <span class="brand-name">DreamForge</span>
+    </div>
+    <div class="toolbar-actions">
+      <button class="btn btn-primary" id="btn-add-location">
+        <span class="btn-icon">⬡</span> Add Location
+      </button>
+      <button class="btn btn-accent" id="btn-add-character">
+        <span class="btn-icon">◈</span> Add Character
+      </button>
+      <button class="btn btn-glow" id="btn-add-event">
+        <span class="btn-icon">◆</span> Add Story Event
+      </button>
+      <div class="toolbar-divider"></div>
+      <button class="btn btn-save" id="btn-save">
+        <span class="btn-icon">⟳</span> Save
+      </button>
+      <button class="btn btn-clear" id="btn-clear">
+        <span class="btn-icon">✕</span> Clear
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Layout -->
+  <main class="app-layout">
+
+    <!-- Dream Map Canvas -->
+    <section class="map-section">
+      <div class="map-controls">
+        <button class="map-btn" id="zoom-in">+</button>
+        <button class="map-btn" id="zoom-out">−</button>
+        <button class="map-btn" id="zoom-reset">⌖</button>
+        <button class="map-btn" id="btn-connect-mode" title="Connect Mode">⤳</button>
+      </div>
+      <div class="map-container" id="map-container">
+        <svg class="connections-svg" id="connections-svg"></svg>
+        <div class="map-world" id="map-world">
+          <div class="map-grid"></div>
+        </div>
+      </div>
+      <div class="map-hint" id="map-hint">Click anywhere on the map to begin your dream world ✦</div>
+      <div class="connect-mode-banner" id="connect-mode-banner">
+        <span>⤳ Connection Mode — Click two nodes to link them</span>
+        <button id="cancel-connect">Cancel</button>
+      </div>
+    </section>
+
+    <!-- Side Panel -->
+    <aside class="side-panel glass">
+      <div class="panel-tabs">
+        <button class="tab-btn active" data-tab="characters">Characters</button>
+        <button class="tab-btn" data-tab="relationships">Connections</button>
+        <button class="tab-btn" data-tab="timeline">Timeline</button>
+      </div>
+
+      <div class="tab-content active" id="tab-characters">
+        <div class="panel-header">
+          <h3>Dream Characters</h3>
+          <span class="count-badge" id="char-count">0</span>
+        </div>
+        <div class="panel-list" id="character-list">
+          <div class="empty-state">
+            <div class="empty-icon">◈</div>
+            <p>No characters yet.<br/>Add one to begin.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-content" id="tab-relationships">
+        <div class="panel-header">
+          <h3>Connections</h3>
+          <span class="count-badge" id="rel-count">0</span>
+        </div>
+        <div class="panel-list" id="relationship-list">
+          <div class="empty-state">
+            <div class="empty-icon">⤳</div>
+            <p>No connections yet.<br/>Use Connect Mode to link nodes.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-content" id="tab-timeline">
+        <div class="panel-header">
+          <h3>Story Timeline</h3>
+          <span class="count-badge" id="event-count">0</span>
+        </div>
+        <div class="panel-list" id="timeline-list">
+          <div class="empty-state">
+            <div class="empty-icon">◆</div>
+            <p>No events yet.<br/>Add a story event to begin.</p>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <!-- Modals -->
+  <div class="modal-overlay" id="modal-overlay">
+
+    <!-- Add Location Modal -->
+    <div class="modal glass" id="modal-location">
+      <div class="modal-header">
+        <span class="modal-icon">⬡</span>
+        <h2>New Dream Location</h2>
+      </div>
+      <div class="modal-body">
+        <label>Location Name</label>
+        <input type="text" id="loc-name" placeholder="e.g. Crystal Caverns" maxlength="40" />
+        <label>Description</label>
+        <textarea id="loc-desc" placeholder="What makes this place dreamlike?" rows="3"></textarea>
+        <label>Aura Color</label>
+        <div class="color-row">
+          <input type="color" id="loc-color" value="#8b5cf6" />
+          <div class="color-presets">
+            <span class="preset" style="background:#8b5cf6" data-color="#8b5cf6"></span>
+            <span class="preset" style="background:#06b6d4" data-color="#06b6d4"></span>
+            <span class="preset" style="background:#ec4899" data-color="#ec4899"></span>
+            <span class="preset" style="background:#f59e0b" data-color="#f59e0b"></span>
+            <span class="preset" style="background:#10b981" data-color="#10b981"></span>
+            <span class="preset" style="background:#ef4444" data-color="#ef4444"></span>
+          </div>
+        </div>
+        <label>Icon</label>
+        <div class="icon-picker" id="loc-icon-picker">
+          <span class="icon-opt selected" data-icon="⬡">⬡</span>
+          <span class="icon-opt" data-icon="⬢">⬢</span>
+          <span class="icon-opt" data-icon="△">△</span>
+          <span class="icon-opt" data-icon="◎">◎</span>
+          <span class="icon-opt" data-icon="✦">✦</span>
+          <span class="icon-opt" data-icon="⬟">⬟</span>
+          <span class="icon-opt" data-icon="♦">♦</span>
+          <span class="icon-opt" data-icon="❋">❋</span>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" id="loc-cancel">Cancel</button>
+        <button class="btn btn-primary" id="loc-confirm">Create Location</button>
+      </div>
+    </div>
+
+    <!-- Add Character Modal -->
+    <div class="modal glass" id="modal-character">
+      <div class="modal-header">
+        <span class="modal-icon">◈</span>
+        <h2>New Dream Character</h2>
+      </div>
+      <div class="modal-body">
+        <label>Character Name</label>
+        <input type="text" id="char-name" placeholder="e.g. The Moonweaver" maxlength="40" />
+        <label>Description / Role</label>
+        <textarea id="char-desc" placeholder="Who are they in this dream?" rows="3"></textarea>
+        <label>Aura Color</label>
+        <div class="color-row">
+          <input type="color" id="char-color" value="#ec4899" />
+          <div class="color-presets" data-for="char">
+            <span class="preset" style="background:#ec4899" data-color="#ec4899"></span>
+            <span class="preset" style="background:#8b5cf6" data-color="#8b5cf6"></span>
+            <span class="preset" style="background:#06b6d4" data-color="#06b6d4"></span>
+            <span class="preset" style="background:#f59e0b" data-color="#f59e0b"></span>
+            <span class="preset" style="background:#10b981" data-color="#10b981"></span>
+            <span class="preset" style="background:#ef4444" data-color="#ef4444"></span>
+          </div>
+        </div>
+        <label>Avatar Symbol</label>
+        <div class="icon-picker" id="char-icon-picker">
+          <span class="icon-opt selected" data-icon="◈">◈</span>
+          <span class="icon-opt" data-icon="☽">☽</span>
+          <span class="icon-opt" data-icon="⊹">⊹</span>
+          <span class="icon-opt" data-icon="⋆">⋆</span>
+          <span class="icon-opt" data-icon="✧">✧</span>
+          <span class="icon-opt" data-icon="⟡">⟡</span>
+          <span class="icon-opt" data-icon="✺">✺</span>
+          <span class="icon-opt" data-icon="⊿">⊿</span>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" id="char-cancel">Cancel</button>
+        <button class="btn btn-accent" id="char-confirm">Create Character</button>
+      </div>
+    </div>
+
+    <!-- Add Event Modal -->
+    <div class="modal glass" id="modal-event">
+      <div class="modal-header">
+        <span class="modal-icon">◆</span>
+        <h2>New Story Event</h2>
+      </div>
+      <div class="modal-body">
+        <label>Event Title</label>
+        <input type="text" id="evt-title" placeholder="e.g. The Great Awakening" maxlength="60" />
+        <label>What happened?</label>
+        <textarea id="evt-desc" placeholder="Describe this dream event..." rows="3"></textarea>
+        <label>When (dream time)</label>
+        <input type="text" id="evt-time" placeholder="e.g. The Third Moon, Year of Mists" maxlength="60" />
+        <label>Event Tone</label>
+        <div class="color-row">
+          <input type="color" id="evt-color" value="#06b6d4" />
+          <div class="color-presets" data-for="evt">
+            <span class="preset" style="background:#06b6d4" data-color="#06b6d4"></span>
+            <span class="preset" style="background:#8b5cf6" data-color="#8b5cf6"></span>
+            <span class="preset" style="background:#ec4899" data-color="#ec4899"></span>
+            <span class="preset" style="background:#f59e0b" data-color="#f59e0b"></span>
+            <span class="preset" style="background:#ef4444" data-color="#ef4444"></span>
+            <span class="preset" style="background:#10b981" data-color="#10b981"></span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" id="evt-cancel">Cancel</button>
+        <button class="btn btn-glow" id="evt-confirm">Add to Timeline</button>
+      </div>
+    </div>
+
+    <!-- Connect Relationship Modal -->
+    <div class="modal glass" id="modal-connect">
+      <div class="modal-header">
+        <span class="modal-icon">⤳</span>
+        <h2>Define Relationship</h2>
+      </div>
+      <div class="modal-body">
+        <div class="connect-preview" id="connect-preview"></div>
+        <label>Relationship Label</label>
+        <input type="text" id="rel-label" placeholder="e.g. allies, rivals, guardian of..." maxlength="50" />
+        <label>Connection Style</label>
+        <div class="rel-style-picker">
+          <label class="rel-style-opt">
+            <input type="radio" name="rel-style" value="solid" checked /> Solid Bond
+          </label>
+          <label class="rel-style-opt">
+            <input type="radio" name="rel-style" value="dashed" /> Fragile Link
+          </label>
+          <label class="rel-style-opt">
+            <input type="radio" name="rel-style" value="dotted" /> Distant Echo
+          </label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" id="rel-cancel">Cancel</button>
+        <button class="btn btn-primary" id="rel-confirm">Forge Connection</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast" id="toast"></div>
+
+  <!-- Ripple Container -->
+  <div class="ripple-container" id="ripple-container"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
